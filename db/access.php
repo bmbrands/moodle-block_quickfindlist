@@ -16,22 +16,33 @@
 
 
 /**
- * Defines the block/quickfindlist:use capability
+ * Defines the block_search_users class
+ * This block is based on Mark Johnson's quickfindlist block
  *
- * @package    block_quickfindlist
- * @copyright  2010 Onwards Taunton's College, UK
- * @author      Mark Johnson <mark.johnson@tauntons.ac.uk>
+ * @package    block_search_users
+ * @copyright  2013 Bas Brands, www.basbrands.nl
+ * @author     Bas Brands, bas@sonsbeekmedia.nl
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $capabilities = array(
 
-    'block/quickfindlist:use' => array(
+    'block/search_users:use' => array(
 
         'captype' => 'view',
         'contextlevel' => CONTEXT_SYSTEM,
         'legacy' => array(
-            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    ),
+    'block/search_users:addinstance' => array(
+
+        'captype' => 'view',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'legacy' => array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW,

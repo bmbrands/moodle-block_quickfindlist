@@ -1,5 +1,4 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,13 +15,12 @@
 
 
 /**
- * AJAX script to respond to search requests
+ * Defines the block_search_users class
+ * This block is based on Mark Johnson's search_users block
  *
- * Checks the user has required permissions, then returns a JSON object containing search results
- *
- * @package    block_quickfindlist
- * @copyright  2010 Onwards Taunton's College, UK
- * @author      Mark Johnson <mark.johnson@tauntons.ac.uk>
+ * @package    block_search_users
+ * @copyright  2013 Bas Brands, www.basbrands.nl
+ * @author     Bas Brands, bas@sonsbeekmedia.nl
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,43 +28,37 @@ define('AJAX_SCRIPT', true);
 require_once('../../config.php');
 
 $name = required_param('name', PARAM_TEXT);
-$role = required_param('role', PARAM_INT);
 $courseformat = required_param('courseformat', PARAM_TEXT);
 $courseid = required_param('courseid', PARAM_TEXT);
 
-$context = get_context_instance(CONTEXT_COURSE, $courseid);
 
-if (isloggedin() && has_capability('block/quickfindlist:use', $context) && confirm_sesskey()) {
+$context = get_context_instance(CONTEXT_COURSE, $courseid);
+global $OUTPUT;
+if (isloggedin() && has_capability('block/search_users:use', $context) && confirm_sesskey()) {
 
     $output = new stdClass;
-    $output->roleid = $role;
     if (!empty($name)) {
 
-        $params = array("%$name%");
-        $select = 'SELECT id, firstname, lastname, username ';
-        $from = 'FROM {user} AS u ';
-        $where = "WHERE deleted = 0 AND CONCAT(firstname, ' ', lastname) LIKE ? ";
-        if ($role != -1) {
-            $params[] = $role;
-            $subselect = 'SELECT COUNT(*) ';
-            $subfrom = 'FROM {role_assignments} AS ra
-                               JOIN {context} AS c ON c.id = contextid ';
-            $subwhere = 'WHERE ra.userid = u.id
-                               AND ra.roleid=?';
-            if ($courseformat != 'site') {
-                $params[] = $courseid;
-                $subwhere .= ' AND contextlevel=50 AND instanceid = ?';
-            }
-            $where .= 'AND ('.$subselect.$subfrom.$subwhere.') > 0 ';
-        }
-        $order = 'ORDER BY lastname';
+        $params = array("%$name%", "%$name%", "%$name%");
 
-        if ($people = $DB->get_records_sql($select.$from.$where.$order, $params)) {
+        $select = "SELECT u.id as id, c.id as contextid, firstname, lastname, username, picture
+                     FROM {user} u
+                LEFT JOIN {context} c
+                       ON u.id = c.instanceid
+                    WHERE u.deleted = 0
+                      AND ( CONCAT(u.firstname, ' ', u.lastname)  LIKE ? OR u.idnumber LIKE ? OR CONCAT(u.firstnamephonetic, ' ', u.lastnamephonetic) LIKE ? )
+                      AND c.contextlevel = 30 ";
+        $order = 'ORDER BY lastname LIMIT 10';
+
+
+        if ($people = $DB->get_records_sql($select . $order, $params)) {
+
             $output->people = $people;
         }
     }
     echo json_encode($output);
 
 } else {
+    fwrite($fh,'not auth');
     header('HTTP/1.1 401 Not Authorised');
 }

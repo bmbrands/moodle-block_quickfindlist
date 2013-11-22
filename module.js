@@ -1,8 +1,8 @@
-M.block_quickfindlist = {
+M.block_search_users = {
 
     sesskey: null,
 
-    init: function(Y, roleid, userfields, url, courseformat, courseid, sesskey) {
+    init: function(Y, courseformat, courseid, sesskey) {
         this.Y = Y;
         if (this.instances === undefined) {
             this.instances = new Array();
@@ -10,45 +10,47 @@ M.block_quickfindlist = {
         this.sesskey = sesskey;
 
         var instance = {
-            'roleid': roleid,
-            'userfields': userfields,
-            'url': url,
             'courseformat': courseformat,
             'courseid': courseid,
-            'progress': Y.one('#quickfindprogress'+roleid),
+            'progress': Y.one('#quickfindprogress'),
             'xhr': null
         }
-        this.instances[roleid] = instance;
-        Y.on('keyup', this.search_on_type, '#quickfindlistsearch'+roleid);
-        Y.on('submit', this.search_on_submit, '#quickfindform'+roleid);
+        this.instances = instance;
+        Y.on('keyup', this.search_on_type, '#search_userssearch');
+        Y.on('submit', this.search_on_submit, '#quickfindform');
+
+        var searchfocus = function(e) {
+          console.log('focus');
+          Y.one('#search_userssearch').focus();
+        }
+
+        Y.one('body').delegate('click', searchfocus, '.block_search_users .block-toggle');
     },
 
     search_on_type: function(e) {
         var searchstring = e.target.get('value');
-        var roleid = /[\-0-9]+/.exec(e.target.get('id'))[0];
-        M.block_quickfindlist.search(searchstring, roleid);
+        M.block_search_users.search(searchstring);
     },
 
     search_on_submit: function(e) {
         e.preventDefault();
-        var roleid = /[\-0-9]+/.exec(e.target.get('id'))[0];
-        var searchstring = e.target.getById('quickfindlistsearch'+roleid).value;
-        M.block_quickfindlist.search(searchstring, roleid);
+        var searchstring = e.target.getById('search_userssearch').value;
+        M.block_search_users.search(searchstring);
     },
 
-    search: function(searchstring, roleid) {
+    search: function(searchstring) {
 
         var Y = this.Y;
-        var instance = this.instances[roleid];
+        var instance = this.instances;
 
-        uri = M.cfg.wwwroot+'/blocks/quickfindlist/quickfind.php';
+        uri = M.cfg.wwwroot+'/blocks/search_users/quickfind.php';
         if (instance.xhr != null) {
             instance.xhr.abort();
         }
         instance.progress.setStyle('visibility', 'visible');
+
         instance.xhr = Y.io(uri, {
-            data: 'role='+roleid
-                +'&name='+searchstring
+            data: 'name='+searchstring
                 +'&courseformat='+instance.courseformat
                 +'&courseid='+instance.courseid
                 +'&sesskey='+this.sesskey,
@@ -56,18 +58,23 @@ M.block_quickfindlist = {
             on: {
                 success: function(id, o) {
                     var response = Y.JSON.parse(o.responseText);
-                    var instance = this.instances[response.roleid];
+
+                    var instance = this.instances;
                     var list = Y.Node.create('<ul />');
                     for (p in response.people) {
-                        var userstring = instance.userfields.replace('[[firstname]]', response.people[p].firstname);
-                        userstring = userstring.replace('[[lastname]]', response.people[p].lastname);
-                        userstring = userstring.replace('[[username]]', response.people[p].username);
-                        li = Y.Node.create('<li><a href="'+instance.url+'&id='+response.people[p].id+'">'+userstring+'</a></li>');
+
+                        var userpicture = '';
+                        if (response.people[p].picture > 1) {
+                          userpicture = M.cfg.wwwroot+'/pluginfile.php/'+response.people[p].contextid+'/user/icon/standard/f2';
+                        } else {
+                          userpicture =  M.util.image_url('u/f2', 'moodle');
+                        }
+                        li = Y.Node.create('<li><a href="'+M.cfg.wwwroot+'/user/profile.php?id='+response.people[p].id+'"><img src='+userpicture+'>'+response.people[p].firstname+' '+response.people[p].lastname+'</a></li>');
                         list.appendChild(li);
                     }
                     instance.progress.setStyle('visibility', 'hidden');
-                    Y.one('#quickfindlist'+roleid).replace(list);
-                    list.set('id', 'quickfindlist'+roleid);
+                    Y.one('#search_users').replace(list);
+                    list.set('id', 'search_users');
                 },
                 failure: function(id, o) {
                     if (o.statusText != 'abort') {

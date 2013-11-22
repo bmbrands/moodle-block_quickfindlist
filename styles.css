@@ -1,25 +1,48 @@
-body.jsenabled .block_quickfindlist .submitbutton {
-    display: none;
+body.jsenabled .block_search_users .submitbutton {
+    line-height: 20px;
+    margin-left: 0px;
 }
 
-.block_quickfindlist .quickfindprogress {
+.block_search_users .quickfindprogress {
     visibility: hidden;
 }
-
-.block_quickfindlist ul {
-    margin: 0;
+.block_search_users .search_userssearch {
+    float: left;
+    width: 60%;
 }
 
-.block_quickfindlist li {
+.block_search_users .adminsearchform {
+    margin-top: 10px;
+}
+
+.block_search_users ul {
+    margin: 0 5px;
+}
+
+.block_search_users img {
+    margin-right: 5px;
+    border-radius: 20px;
+}
+
+.block_search_users li {
     list-style-type: none;
     margin-left: 0;
     padding-bottom: 0.2em;
     margin-bottom: 0.2em;
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-bottom-color: #d3d3d3;
+    border: 0;
 }
 
-.quickfindlistsearch {
+.search_userssearch {
     width: 10em;
+}
+
+.dir-rtl .block_search_users img {
+    margin-right: 0;
+    margin-left: 5px;
+    border-radius: 20px;
+}
+
+.dir-rtl .block_search_users .search_userssearch {
+    float: right;
+    width: 60%;
 }

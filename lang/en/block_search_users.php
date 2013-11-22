@@ -1,4 +1,5 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,7 +17,9 @@
 
 /**
  * Defines the block_search_users class
- * This block is based on Mark Johnson's search_users block
+ * This block is based on Mark Johnson's quickfindlist block
+ * Mark Johnson <mark.johnson@tauntons.ac.uk>
+ *
  *
  * @package    block_search_users
  * @copyright  2013 Bas Brands, www.basbrands.nl
@@ -24,8 +27,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2013112200;
-$plugin->requires = 2010112400;
-$plugin->component = 'block_search_users';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = '2.0.1 (Build: 2010110900)';
+$string['allusers'] = 'All Users';
+$string['pluginname'] = 'Search Users';
+$string['blockname'] = 'Search Users';
+$string['loading']  = 'Loading...';
+$string['search_users'] = 'Search Users';
+$string['search_users:use'] = 'Use Search users List';
+$string['search_users:addinstance'] = 'Add a new user search block';
